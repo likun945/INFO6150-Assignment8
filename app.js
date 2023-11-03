@@ -1,29 +1,16 @@
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const User = require('./models/user'); // Import your Mongoose User model
+const userRoutes = require('./routes/userRoutes');
+const mongoose = require('mongoose');
+const dbURL = 'mongodb://localhost/INFO6150';
 
-// Connect to your MongoDB database
-mongoose.connect('mongodb://localhost/INFO6150', { useNewUrlParser: true });
+mongoose.connect(dbURL, { useNewUrlParser: true });
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Create a new user with error handling
-app.post('/user/create', async (req, res) => {
-    try {
-        const { email, password, fullName } = req.body;
-        const user = new User({ email, password, fullName });
-        await user.save();
-        res.status(201).json({ message: 'User created successfully' });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
-app.get('/user/:id', async (req, res) => {
-    res.send('Hello World!');
-});
+app.use('/user', userRoutes);
 
 app.listen(3000, function () {
     console.log('Server listening on port 3000');
