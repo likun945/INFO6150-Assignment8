@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 exports.createUser = async (req, res) => {
     try {
         const { email, password, fullName } = req.body;
-        const user = new User({       
+        const user = new User({
             userId: new mongoose.Types.ObjectId(),
-            email, 
-            password, 
-            fullName 
+            email,
+            password,
+            fullName
         });
         await user.save();
         res.status(201).json({ message: 'User created successfully' });
@@ -17,23 +17,62 @@ exports.createUser = async (req, res) => {
     }
 };
 
-// Update user details route controller
 exports.editUser = async (req, res) => {
-    const userId = req.params.userId;
-    const { fullName, password } = req.body;
-    // Logic to update user details (full name and password)
-    // Add validations for full name and password
-    // Proper error message if user is not found
+    try {
+        const { email, password, fullName } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (fullName) {
+            // Validate full name (customize the validation as needed)
+            if (!/^[a-zA-Z ]{1,50}$/.test(fullName)) {
+                return res.status(400).json({ message: 'Invalid full name format' });
+            }
+            user.fullName = fullName;
+        }
+        if (password) {
+            // Validate password (customize the validation as needed)
+            if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password)) {
+                return res.status(400).json({ message: 'Invalid password format' });
+            }
+            user.password = password;
+        }
+        await user.save();
+
+        res.json({ message: 'User details updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
 
-// Delete user by email route controller
 exports.deleteUser = async (req, res) => {
-    // Logic to delete a user by email
+    try {
+        const email = req.body.email;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        await user.deleteOne();
+
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-// Get all users' full name, email addresses, and passwords route controller
 exports.getAllUsers = async (req, res) => {
-    // Logic to retrieve and return full name, email addresses, and hashed passwords
+    try {
+        const users = await User.find({}, 'email fullName password -_id');
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'No users found' });
+        }
+
+        res.json({ users });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
 
 module.exports = exports;
