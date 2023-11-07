@@ -1,16 +1,16 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const userRoutes = require('./routes/userRoutes');
-const mongoose = require('mongoose');
-const dbURL = 'mongodb://localhost/INFO6150';
+const config = require('./config/index');
+const routes = require('./routes/index');
 
-mongoose.connect(dbURL, { useNewUrlParser: true });
+const mongoose = require('mongoose');
+mongoose.connect(config.dbURL, { useNewUrlParser: true });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/user', userRoutes);
+app.use('/api', routes);
 
 app.listen(3000, function () {
     console.log('Server listening on port 3000');
