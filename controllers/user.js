@@ -20,6 +20,9 @@ exports.createUser = async (req, res) => {
 exports.editUser = async (req, res) => {
     try {
         const { email, password, fullName } = req.body;
+        if (email !== req.user.email) {
+            return res.status(403).json({ message: 'Access denied. You can only edit your own information.' });
+        }
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
