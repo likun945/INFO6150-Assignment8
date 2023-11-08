@@ -3,6 +3,9 @@ const app = express();
 const bodyParser = require('body-parser');
 const config = require('./config/index');
 const routes = require('./routes/index');
+const customResponseMiddleware = require('./middlewares/response');
+
+app.use(customResponseMiddleware);
 
 const mongoose = require('mongoose');
 mongoose.connect(config.dbURL, { useNewUrlParser: true });

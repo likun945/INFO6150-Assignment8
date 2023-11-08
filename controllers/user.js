@@ -11,41 +11,36 @@ exports.createUser = async (req, res) => {
             fullName
         });
         await user.save();
-        res.status(201).json({ message: 'User created successfully' });
+        res.success({ user }, 'User created successfully');
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.error(400, error.message);
     }
 };
 
 exports.editUser = async (req, res) => {
     try {
         const { email, password, fullName } = req.body;
-        if (email !== req.user.email) {
-            return res.status(403).json({ message: 'Access denied. You can only edit your own information.' });
-        }
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.error(404, 'User not found');
         }
         if (fullName) {
-            // Validate full name (customize the validation as needed)
             if (!/^[a-zA-Z ]{1,50}$/.test(fullName)) {
-                return res.status(400).json({ message: 'Invalid full name format' });
+                return res.error(400, 'Invalid full name format');
             }
             user.fullName = fullName;
         }
         if (password) {
             // Validate password (customize the validation as needed)
             if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password)) {
-                return res.status(400).json({ message: 'Invalid password format' });
+                return res.error(400, 'Invalid password format');
             }
             user.password = password;
         }
         await user.save();
-
-        res.json({ message: 'User details updated successfully' });
+        res.success({ user }, 'User details updated successfully');
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
+        res.error(500, 'Internal server error');
     }
 };
 
@@ -55,13 +50,12 @@ exports.deleteUser = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.error(404, 'User not found');
         }
         await user.deleteOne();
-
-        res.json({ message: 'User deleted successfully' });
+        res.success({ user }, 'User deleted successfully');
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.error(500, error.message);
     }
 };
 
@@ -69,12 +63,12 @@ exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find({}, 'email fullName password -_id');
         if (!users || users.length === 0) {
-            return res.status(404).json({ message: 'No users found' });
+            return res.error(404, 'No users found');
         }
 
-        res.json({ users });
+        res.success({ users }, 'Users retrieved successfully');
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
+        res.error(500, 'Internal server error');
     }
 };
 

@@ -4,12 +4,15 @@ const { secretKey } = require('../config/index');
 exports.verifyToken = (req, res, next) => {
     const token = req.header('Authorization');
     if (!token) {
-        return res.status(401).json({ message: 'Access denied. No token provided.' });
+        return res.error(401, 'Access denied. No token provided');
     }
     const tokenWithoutPrefix = token.replace('Bearer ', '');
     jwt.verify(tokenWithoutPrefix, secretKey, (err, decoded) => {
         if (err) {
-            return res.status(401).json({ message: err });
+            if (err.name === 'TokenExpiredError') {
+                return res.error(401, 'Token has expired');
+            }
+            return res.error(401, 'Invalid token');
         }
         req.user = decoded;
         next();
@@ -19,7 +22,7 @@ exports.verifyToken = (req, res, next) => {
 exports.userCanEdit = (req, res, next) => {
     const { email } = req.body;
     if (email !== req.user.email) {
-        return res.status(403).json({ message: 'Access denied. You can only edit your own information.' });
+        return res.error(403, 'Access denied. You can only edit your own information');
     }
 
     next();

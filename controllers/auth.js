@@ -17,7 +17,7 @@ exports.logIn = async (req, res) => {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
-        const token = jwt.sign({ email }, secretKey);
+        const token = jwt.sign({ email }, secretKey, { expiresIn: 86400 });
         res.json({ token });
     } catch (error) {
         res.status(500).json({ message: 'Internal Server Error' });
