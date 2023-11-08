@@ -5,9 +5,9 @@ const { verifyToken, userCanEdit } = require('../middlewares/auth');
 
 router.post('/create', UserController.createUser);
 
-router.put('/edit', verifyToken, userCanEdit, UserController.editUser);
+router.put('/edit', UserController.editUser);
 
-router.delete('/delete', verifyToken, userCanEdit, UserController.deleteUser);
+router.delete('/delete', UserController.deleteUser);
 
 router.get('/getAll', UserController.getAllUsers);
 
