@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/user');
-// const { verifyToken, userCanEdit } = require('../middlewares/auth');
+const { verifyToken, userCanEdit } = require('../middlewares/auth');
 
 router.post('/create', UserController.createUser);
 
